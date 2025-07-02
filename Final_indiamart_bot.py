@@ -1,39 +1,63 @@
 import os
 import asyncio
+from datetime import datetime, timedelta
 from fastapi import FastAPI, Request, BackgroundTasks
 from playwright.async_api import async_playwright, Page
 import requests
 from contextlib import asynccontextmanager
 import uvicorn
 
-#API to enable
-#https://api.telegram.org/bot7590291851:AAF8ydq6rqcmvUWBCv0BdnEOx0n5ZlSc-2Q/setWebhook?url=https://c6a7-49-36-41-247.ngrok-free.app/telegram
-
 BOT_TOKEN = "7590291851:AAF8ydq6rqcmvUWBCv0BdnEOx0n5ZlSc-2Q"
 CHAT_IDS = [859768186, -1002860729071]
-SEEN_FILE = "seen_titles.txt"
+SEEN_FILE = "seen_titles_v2.txt"
 TARGET_COUNTRIES = [
-    "USA", "UK", "France", "Australia", "China", "Korea", "Russia",
+    "USA", "UK", "France", "Australia", "China", "Korea", "Russia", "Italy",
     "New Zealand", "Turkey", "Taiwan", "Mexico", "Canada", "Thailand", "Malaysia"
 ]
 
 page_global = {}
-click_in_progress = asyncio.Lock()  # Lock to prevent refresh during clicks
+click_in_progress = asyncio.Lock()
 
 # ------------------ Utility Functions ------------------
 
-def load_seen_titles():
-    if os.path.exists(SEEN_FILE):
-        with open(SEEN_FILE, "r", encoding="utf-8") as f:
-            return set(line.strip() for line in f.readlines())
-    return set()
+def normalize_title(title: str):
+    return title.strip().lower()
 
 def save_seen_title(title):
     with open(SEEN_FILE, "a", encoding="utf-8") as f:
-        f.write(title.strip() + "\n")
+        f.write(f"{datetime.utcnow().isoformat()}|{normalize_title(title)}\n")
 
-def normalize_title(title: str):
-    return title.strip().lower()
+def load_seen_titles(hours=24):
+    cutoff = datetime.utcnow() - timedelta(hours=hours)
+    seen = set()
+    if os.path.exists(SEEN_FILE):
+        with open(SEEN_FILE, "r", encoding="utf-8") as f:
+            for line in f:
+                try:
+                    ts_str, title = line.strip().split("|", 1)
+                    ts = datetime.fromisoformat(ts_str)
+                    if ts >= cutoff:
+                        seen.add(title.strip())
+                except ValueError:
+                    continue
+    return seen
+
+async def cleanup_seen_titles(days=7):
+    while True:
+        await asyncio.sleep(86400)
+        cutoff = datetime.utcnow() - timedelta(days=days)
+        if os.path.exists(SEEN_FILE):
+            with open(SEEN_FILE, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+            with open(SEEN_FILE, "w", encoding="utf-8") as f:
+                for line in lines:
+                    try:
+                        ts_str, _ = line.strip().split("|", 1)
+                        if datetime.fromisoformat(ts_str) >= cutoff:
+                            f.write(line)
+                    except ValueError:
+                        continue
+        print("🧹 Cleaned up old seen titles.")
 
 def send_telegram_message_with_button(title, message, source):
     for chat_id in CHAT_IDS:
@@ -54,13 +78,13 @@ def send_telegram_message_with_button(title, message, source):
 
 def notify_telegram(chat_id, title, success, description=None):
     msg = f"✅ Contacted: {title}\nDescription: {description}" if success and description else f"✅ Contacted: {title}" if success else f"❌ Failed to contact: {title}"
-    try:
-        for chat_id in CHAT_IDS:
+    for chat_id in CHAT_IDS:
+        try:
             response = requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", json={"chat_id": chat_id, "text": msg})
             if not response.ok:
                 print(f"❌ Telegram notification failed for chat_id {chat_id}: {response.text}")
-    except Exception as e:
-        print(f"❌ Telegram notification error: {e}")
+        except Exception as e:
+            print(f"❌ Telegram notification error: {e}")
 
 # ------------------ FastAPI App ------------------
 
@@ -84,14 +108,13 @@ async def telegram_webhook(req: Request, background_tasks: BackgroundTasks):
 # ------------------ Trigger Buyer Click ------------------
 
 async def trigger_click(chat_id, norm_title, source):
-    async with click_in_progress:  # Acquire lock during click
+    async with click_in_progress:
         try:
             click_page = page_global.get(f"{source}_click_page")
             await click_page.reload()
 
-            # Scroll to load all cards (infinite scroll)
             prev_height = 0
-            for _ in range(5):  # Try 5 times max
+            for _ in range(5):
                 await click_page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
                 await asyncio.sleep(1)
                 new_height = await click_page.evaluate("document.body.scrollHeight")
@@ -99,7 +122,6 @@ async def trigger_click(chat_id, norm_title, source):
                     break
                 prev_height = new_height
 
-            # Get all cards
             cards = await click_page.locator("div.lstNw").all()
             print(f"🔍 Searching [{source}] for: {norm_title} in {len(cards)} cards")
 
@@ -110,38 +132,25 @@ async def trigger_click(chat_id, norm_title, source):
                         print(f"📌 Found: {title}")
                         await card.scroll_into_view_if_needed()
                         await card.hover()
-
-                        # Traverse up to the bl_grid parent
                         bl_grid = card.locator("xpath=ancestor::div[contains(@class, 'bl_grid')]").first
                         if await bl_grid.count() == 0:
-                            print(f"⚠️ bl_grid parent not found for: {title}")
                             notify_telegram(chat_id, title, False)
                             continue
-
-                        # Extract the Contact Buyer Now button description
                         btn = bl_grid.locator("div.btnCBN.btnCBN1").first
                         if await btn.count() > 0:
                             description = await btn.get_attribute("title") or await btn.inner_text()
                             await asyncio.sleep(1)
                             await btn.click(force=True)
-                            print(f"✅ Clicked Contact Buyer Now for: {title}, Description: {description}")
-                            # Notify immediately after click
                             notify_telegram(chat_id, title, True, description)
-                            # Wait for 5 seconds and reload to remove popup
                             await asyncio.sleep(5)
                             await click_page.reload()
                             return
                         else:
-                            print(f"⚠️ Contact Buyer Now button not found in: {title}")
                             notify_telegram(chat_id, title, False)
                 except Exception as e:
                     print(f"⚠️ Card error: {e}")
                     notify_telegram(chat_id, title, False)
-                    continue
-
-            print(f"❌ Not found: {norm_title} on [{source}]")
             notify_telegram(chat_id, norm_title, False)
-
         except Exception as e:
             print(f"❌ trigger_click error: {e}")
             notify_telegram(chat_id, norm_title, False)
@@ -149,11 +158,11 @@ async def trigger_click(chat_id, norm_title, source):
 # ------------------ Scan Loop ------------------
 
 async def scan_loop(page: Page, label: str):
-    seen = load_seen_titles()
     source = label.replace("_scan", "")
     print(f"🚀 Started scanning loop for [{label}]...")
     while True:
         try:
+            seen = load_seen_titles()
             await page.reload()
             await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
             await asyncio.sleep(2)
@@ -168,8 +177,7 @@ async def scan_loop(page: Page, label: str):
                         if norm_title not in seen:
                             msg = f"🌍 New Lead ({label}): {title}\n\n{raw[:300]}..."
                             send_telegram_message_with_button(title, msg, source)
-                            seen.add(norm_title)
-                            save_seen_title(norm_title)
+                            save_seen_title(title)
                 except Exception as e:
                     print(f"⚠️ Error parsing card #{idx+1}: {e}")
         except Exception as e:
@@ -180,12 +188,12 @@ async def scan_loop(page: Page, label: str):
 
 async def refresh_loop():
     while True:
-        if not click_in_progress.locked():  # Only refresh if no click is in progress
+        if not click_in_progress.locked():
             for key in ["recent_click_page", "relevant_click_page"]:
                 if page := page_global.get(key):
                     print(f"🔄 Refreshing {key}")
                     await page.reload()
-        await asyncio.sleep(300)  # Refresh every 5 minutes (300 seconds)
+        await asyncio.sleep(300)
 
 # ------------------ Lifespan ------------------
 
@@ -214,7 +222,8 @@ async def lifespan(app: FastAPI):
 
         asyncio.create_task(scan_loop(recent_scan, "recent_scan"))
         asyncio.create_task(scan_loop(relevant_scan, "relevant_scan"))
-        asyncio.create_task(refresh_loop())  # Start refresh loop
+        asyncio.create_task(refresh_loop())
+        asyncio.create_task(cleanup_seen_titles())  # Daily cleanup
         yield
 
 app.router.lifespan_context = lifespan
