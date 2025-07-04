@@ -15,7 +15,7 @@ LOCAL_URL = "http://localhost:8000"
 BOT_TOKEN = "7590291851:AAF8ydq6rqcmvUWBCv0BdnEOx0n5ZlSc-2Q"
 SEEN_FILE = r"C:\Users\schandwani\Desktop\IndiaMartBot\app\seen_titles.txt"
 COOKIES_PATH = r"C:\Users\schandwani\Desktop\IndiaMartBot\app\novasys_cookies.json"
-CLOUDFLARED_PATH = r"C:\Users\schandwani\Desktop\cloudflared-windows-amd64.exe"
+CLOUDFLARED_PATH = os.path.join(os.getcwd(), "cloudflared")
 TARGET_COUNTRIES = [
     "USA", "UK", "France", "Australia", "China", "Korea", "Russia", "Italy", "Philippines",
     "New Zealand", "Turkey", "Taiwan", "Mexico", "Canada", "Thailand", "Malaysia", "Saudi Arabia"
