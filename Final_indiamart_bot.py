@@ -10,9 +10,9 @@ import subprocess
 from contextlib import asynccontextmanager
 import uvicorn
 
-CHAT_IDS = [-1002860729071]
-LOCAL_URL = "http://localhost:8000"
-BOT_TOKEN = "7590291851:AAF8ydq6rqcmvUWBCv0BdnEOx0n5ZlSc-2Q"
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHAT_IDS = json.loads(os.getenv("CHAT_IDS", "[-1002860729071]"))
+LOCAL_URL = os.getenv("LOCAL_URL", "http://localhost:8000")
 SEEN_FILE = os.path.join(os.getcwd(), "seen_titles.txt")
 COOKIES_PATH = os.path.join(os.getcwd(), "novasys_cookies.json")
 CLOUDFLARED_PATH = os.path.join(os.getcwd(), "cloudflared")
