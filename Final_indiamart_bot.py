@@ -13,8 +13,8 @@ import uvicorn
 CHAT_IDS = [-1002860729071]
 LOCAL_URL = "http://localhost:8000"
 BOT_TOKEN = "7590291851:AAF8ydq6rqcmvUWBCv0BdnEOx0n5ZlSc-2Q"
-SEEN_FILE = r"C:\Users\schandwani\Desktop\IndiaMartBot\app\seen_titles.txt"
-COOKIES_PATH = r"C:\Users\schandwani\Desktop\IndiaMartBot\app\novasys_cookies.json"
+SEEN_FILE = os.path.join(os.getcwd(), "seen_titles.txt")
+COOKIES_PATH = os.path.join(os.getcwd(), "novasys_cookies.json")
 CLOUDFLARED_PATH = os.path.join(os.getcwd(), "cloudflared")
 TARGET_COUNTRIES = [
     "USA", "UK", "France", "Australia", "China", "Korea", "Russia", "Italy", "Philippines",
