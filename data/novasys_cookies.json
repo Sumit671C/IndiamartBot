@@ -1,0 +1,382 @@
+[
+  {
+    "name": "iploc",
+    "value": "gcniso%3DIN%7Cgcnnm%3DIndia%7Cgctnm%3DPune%7Cgctid%3D70630%7Cgacrcy%3D200%7Cgip%3D49.36.43.61%7Cgstnm%3DMaharashtra",
+    "domain": ".indiamart.com",
+    "path": "/",
+    "expires": 1751556097,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "_gcl_au",
+    "value": "1.1.762257304.1751545298",
+    "domain": ".indiamart.com",
+    "path": "/",
+    "expires": 1759321298,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "CLID",
+    "value": "056ca507caf240598f6c12941a1fe202.20250703.20260703",
+    "domain": "www.clarity.ms",
+    "path": "/",
+    "expires": 1783081298.226306,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "_ga",
+    "value": "GA1.1.97759373.1751545299",
+    "domain": ".indiamart.com",
+    "path": "/",
+    "expires": 1786105509.280109,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "i",
+    "value": "sawPMNq/t5xwJWY4Op8Eas+kKjehrc+/O/Kw0nu4KHI7YW8IymvMGu+is00kwuGjZalnKEhQ+JkRVlz3plvI0EStu/Y=",
+    "domain": ".yandex.ru",
+    "path": "/",
+    "expires": 1786105299.00334,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "yandexuid",
+    "value": "2529200991751545300",
+    "domain": ".yandex.ru",
+    "path": "/",
+    "expires": 1786105300.54387,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "yashr",
+    "value": "9799766461751545300",
+    "domain": ".yandex.ru",
+    "path": "/",
+    "expires": 1783081299.003805,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "_clck",
+    "value": "1m9bmyh%7C2%7Cfxa%7C0%7C2010",
+    "domain": ".indiamart.com",
+    "path": "/",
+    "expires": 1783081299,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "_ym_uid",
+    "value": "1751545300752438037",
+    "domain": ".indiamart.com",
+    "path": "/",
+    "expires": 1783081299,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "_ym_d",
+    "value": "1751545300",
+    "domain": ".indiamart.com",
+    "path": "/",
+    "expires": 1783081299,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "MUID",
+    "value": "1CD9471525356CFD2BA0510B24E06D32",
+    "domain": ".bing.com",
+    "path": "/",
+    "expires": 1785241299.75785,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "MR",
+    "value": "0",
+    "domain": ".c.bing.com",
+    "path": "/",
+    "expires": 1752150099.758268,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "SRM_B",
+    "value": "1CD9471525356CFD2BA0510B24E06D32",
+    "domain": ".c.bing.com",
+    "path": "/",
+    "expires": 1785241299.758377,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "yabs-sid",
+    "value": "2232111671751545302",
+    "domain": "mc.yandex.ru",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "yuidss",
+    "value": "2529200991751545300",
+    "domain": ".yandex.ru",
+    "path": "/",
+    "expires": 1786105300.544011,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "ymex",
+    "value": "2066905302.yrts.1751545302",
+    "domain": ".yandex.ru",
+    "path": "/",
+    "expires": 1783081302,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "receive-cookie-deprecation",
+    "value": "1",
+    "domain": ".yandex.ru",
+    "path": "/",
+    "expires": 1783081513,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "_ym_isad",
+    "value": "2",
+    "domain": ".indiamart.com",
+    "path": "/",
+    "expires": 1751617301,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "YSC",
+    "value": "XPet-p8-Ebw",
+    "domain": ".youtube.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "__Secure-ROLLOUT_TOKEN",
+    "value": "CLKqgLXnkI6mQBDY5fDc1qCOAxjY5fDc1qCOAw%3D%3D",
+    "domain": ".youtube.com",
+    "path": "/",
+    "expires": 1767097302.037658,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "VISITOR_INFO1_LIVE",
+    "value": "K_uXk_5oKI4",
+    "domain": ".youtube.com",
+    "path": "/",
+    "expires": 1767097302.037738,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "VISITOR_PRIVACY_METADATA",
+    "value": "CgJJThIEGgAgYg%3D%3D",
+    "domain": ".youtube.com",
+    "path": "/",
+    "expires": 1767097302.037869,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "SM",
+    "value": "C",
+    "domain": ".c.clarity.ms",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "MUID",
+    "value": "1CD9471525356CFD2BA0510B24E06D32",
+    "domain": ".clarity.ms",
+    "path": "/",
+    "expires": 1785241303.292087,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "MR",
+    "value": "0",
+    "domain": ".c.clarity.ms",
+    "path": "/",
+    "expires": 1752150103.292166,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "ANONCHK",
+    "value": "0",
+    "domain": ".c.clarity.ms",
+    "path": "/",
+    "expires": 1751545903.292474,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "_ym_visorc",
+    "value": "b",
+    "domain": ".indiamart.com",
+    "path": "/",
+    "expires": 1751547313,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "NID",
+    "value": "525=m7-ciWVT0nkWuyWQyUGHkJz8vx8m9y5BGcLR0oOfb2g5-zJE0OnhqusFwGF0vB18cpod0-buO7nFrwkTCrzTHLDP0oqATR_xeSge078rh6D4Q4jpX6TCBH8iKcgAQYrXCA8xSxmpjGp01V2ZtX-t_NQIIVP6nQG8Pe7M0yIwo9tZIxfUUv-o4MP-IF4yfpkLsg",
+    "domain": ".google.com",
+    "path": "/",
+    "expires": 1767356581.949235,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "im_iss",
+    "value": "t%3DeyJ0eXAiOiJKV1QiLCJhbGciOiJzaGEyNTYifQ.eyJpc3MiOiJVU0VSIiwiYXVkIjoiNyo1KjcqOSoxKiIsImV4cCI6MTc1MTYzMTg2OSwiaWF0IjoxNzUxNTQ1NDY5LCJzdWIiOiIyNDcyNDQ3MjMiLCJjZHQiOiIwMy0wNy0yMDI1In0.cPPsqLzmCMAaPy4a3TUcZESCcLslecYm8PR5sILuGA8",
+    "domain": ".indiamart.com",
+    "path": "/",
+    "expires": 1754137467.685096,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "ImeshVisitor",
+    "value": "admln%3D0%7Cadmsales%3D0%7Ccd%3D03%2FJUL%2F2025%7Ccmid%3D1%7Cctid%3D70625%7Cem%3Dp%2A%2A%2A%2A%2A%2A%2A%2A%2A%2A%2A%2A%40gmail.com%7Cev%3DV%7Cfn%3DNova%7Cglid%3D247244723%7Ciso%3DIN%7Cmb1%3D7558769814%7Cphcc%3D91%7Cpns%3D%7Custs%3D%7Cutyp%3DP%7Cuv%3DV",
+    "domain": ".indiamart.com",
+    "path": "/",
+    "expires": 1783081467.685278,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "FCNEC",
+    "value": "%5B%5B%22AKsRol-gBOMHaX4Sf-wciCg7gAmVLMch4hqXTB0cUOdBwHn4f_a6RO5TB9WrOVIHK0kDmDbxIp0Bdhvy0TkKhFE7d2zmJW6az99mwB43mAHReiFiccaemzprJ_TWJ_OOCwFfeHQN9Cc1CXF6mi6bj79JxzWAOCpsoA%3D%3D%22%5D%5D",
+    "domain": ".indiamart.com",
+    "path": "/",
+    "expires": 1783081473,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "xnHist",
+    "value": "pv%3D0%7Cipv%3D1%7Cfpv%3D1%7Ccity%3D%7Ccvstate%3Dundefined%7Cpopupshown%3Dundefined%7Cinstall%3Dundefined%7Css%3Dundefined%7Cmb%3Dundefined%7Ctm%3Dundefined%7Cage%3Dundefined%7Ccount%3D0%7Ctime%3DThu%20Jul%2003%202025%2017%3A54%3A30%20GMT+0530%20%28India%20Standard%20Time%29%7Cglid%3D247244723%7Cgname%3Dundefined%7Cgemail%3Dundefined%7CcityID%3Dundefined",
+    "domain": ".indiamart.com",
+    "path": "/",
+    "expires": 1751631906,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "userDet",
+    "value": "glid=247244723|loc_pref=4|fcp_flag=1|image=|service_ids=280,233,236,350,353|logo=|psc_status=0|d_re=|u_url=https://www.novasyspharma.com/|ast=A|lst=LST|ctid=70625|ct=Nagpur|stid=6489|st=Maharashtra|enterprise=0|mod_st=F|rating=0|nach=0|iec=AAYFN2314G|is_suspect=0|vertical=KCD|pns_no=7947157217|gst=27AAYFN2314G1Z2|pan=AAYFN2314G|cin=|collectPayments=0|is_display_invoice_banner=0|is_display_enquiry=0|is_display_credit=0|disposition=|disp_date=|recreateUserDetCookie=|vid=|did=|fid=|src_ID=3|locPref_enable=1",
+    "domain": "seller.indiamart.com",
+    "path": "/",
+    "expires": 1751559907,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "user_choice_loc",
+    "value": "",
+    "domain": "seller.indiamart.com",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "bh",
+    "value": "EiciTm90KUE7QnJhbmQiO3Y9IjgiLCAiQ2hyb21pdW0iO3Y9IjEzOCIaA3g4NiINMTM4LjAuNzIwNC4yMyoCPzA6CSJXaW5kb3dzIkIGMTQuMC4wSgI2NFI2Ik5vdClBO0JyYW5kIjt2PSI4LjAuMC4wIiwiQ2hyb21pdW0iO3Y9IjEzOC4wLjcyMDQuMjMiYKztmcMGah7cyuH/CJLYobEDn8/h6gP7+vDnDev//fYPitTNhwg=",
+    "domain": ".yandex.ru",
+    "path": "/",
+    "expires": 1786105514.481345,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "None"
+  },
+  {
+    "name": "_clsk",
+    "value": "1lqi9p9%7C1751545515511%7C2%7C0%7Cv.clarity.ms%2Fcollect",
+    "domain": ".indiamart.com",
+    "path": "/",
+    "expires": 1751631915,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "_ga_8B5NXMMZN3",
+    "value": "GS2.1.s1751545298$o1$g1$t1751545524$j60$l0$h0",
+    "domain": ".indiamart.com",
+    "path": "/",
+    "expires": 1786105524.944563,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "sessid",
+    "value": "spv=5",
+    "domain": ".indiamart.com",
+    "path": "/",
+    "expires": 1751547327,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  }
+]
