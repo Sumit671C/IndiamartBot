@@ -1,7 +1,6 @@
 import os
 import asyncio
 import json
-import re
 from datetime import datetime, timedelta
 from fastapi import FastAPI, Request, BackgroundTasks
 from playwright.async_api import async_playwright, Page
