@@ -6,16 +6,14 @@ from datetime import datetime, timedelta
 from fastapi import FastAPI, Request, BackgroundTasks
 from playwright.async_api import async_playwright, Page
 import requests
-import subprocess
 from contextlib import asynccontextmanager
 import uvicorn
 
+# Environment variables
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_IDS = json.loads(os.getenv("CHAT_IDS", "[-1002860729071]"))
-LOCAL_URL = os.getenv("LOCAL_URL", "http://localhost:8000")
-SEEN_FILE = os.path.join(os.getcwd(), "seen_titles.txt")
-COOKIES_PATH = os.path.join(os.getcwd(), "novasys_cookies.json")
-CLOUDFLARED_PATH = os.path.join(os.getcwd(), "cloudflared")
+SEEN_FILE = os.getenv("SEEN_FILE", "/app/data/seen_titles.txt")
+COOKIES_PATH = os.getenv("COOKIES_PATH", "/app/data/novasys_cookies.json")
 TARGET_COUNTRIES = [
     "USA", "UK", "France", "Australia", "China", "Korea", "Russia", "Italy", "Philippines",
     "New Zealand", "Turkey", "Taiwan", "Mexico", "Canada", "Thailand", "Malaysia", "Saudi Arabia"
@@ -28,6 +26,11 @@ webhook_set = asyncio.Event()
 
 def normalize_title(title: str):
     return title.strip().lower()
+
+def ensure_data_directory():
+    """Create data directory for persistent files."""
+    data_dir = os.path.dirname(SEEN_FILE)
+    os.makedirs(data_dir, exist_ok=True)
 
 def save_seen_title(title):
     with open(SEEN_FILE, "a", encoding="utf-8") as f:
@@ -92,58 +95,39 @@ def notify_telegram(chat_id, title, success, description=None):
         except Exception as e:
             print(f"❌ Telegram notification error: {e}")
 
-async def set_telegram_webhook(public_url, browser_context, max_retries=5, retry_delay=30):
+async def set_telegram_webhook(max_retries=5, retry_delay=30):
     global current_tunnel_url
-    webhook_url = f"{public_url}/telegram"
-    if current_tunnel_url == public_url:
+    webhook_url = f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}/telegram"
+    if current_tunnel_url == webhook_url:
         print(f"ℹ️ Skipping webhook setup for unchanged URL: {webhook_url}")
         webhook_set.set()
         return True
     webhook_api_url = f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook?url={webhook_url}"
     print(f"🌐 Setting Telegram webhook to: {webhook_url}")
-    # Initial delay to allow DNS propagation
-    print(f"⏳ Waiting 10 seconds for DNS propagation...")
-    await asyncio.sleep(10)
-    
+
     for attempt in range(1, max_retries + 1):
         try:
-            # Verify URL accessibility
-            print(f"🔍 Verifying URL accessibility (attempt {attempt}/{max_retries}): {public_url}")
-            response = requests.get(public_url, timeout=15)
+            print(f"🔍 Verifying URL accessibility (attempt {attempt}/{max_retries}): {webhook_url}")
+            response = requests.get(webhook_url, timeout=15)
             if response.ok:
-                print(f"✅ URL {public_url} is accessible")
+                print(f"✅ URL {webhook_url} is accessible")
             else:
-                print(f"⚠️ URL {public_url} returned status code: {response.status_code}")
-        except Exception as e:
-            print(f"⚠️ Failed to verify URL {public_url}: {e}")
+                print(f"⚠️ URL {webhook_url} returned status code: {response.status_code}")
 
-        try:
-            # Open webhook URL in browser
-            print(f"🌐 Opening webhook URL in browser (attempt {attempt}/{max_retries}): {webhook_api_url}")
-            page = await browser_context.new_page()
-            await page.goto(webhook_api_url, timeout=60000)
-            content = await page.content()
-            print(f"📄 Browser response: {content[:200]}...")
-            # Keep tab open for 5 seconds to allow manual inspection
-            print(f"⏳ Keeping browser tab open for 5 seconds to inspect response...")
-            await asyncio.sleep(5)
-            await page.close()
-            # Check webhook status
-            status_response = requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/getWebhookInfo", timeout=15)
+            status_response = requests.get(webhook_api_url, timeout=15)
             if status_response.ok and status_response.json().get("result", {}).get("url") == webhook_url:
-                print(f"✅ Successfully set Telegram webhook to {webhook_url} via browser")
-                current_tunnel_url = public_url
+                print(f"✅ Successfully set Telegram webhook to {webhook_url}")
+                current_tunnel_url = webhook_url
                 webhook_set.set()
                 return True
             else:
-                print(f"❌ Webhook not set via browser (attempt {attempt}/{max_retries}): {status_response.text}")
+                print(f"❌ Webhook not set (attempt {attempt}/{max_retries}): {status_response.text}")
                 if status_response.status_code == 429:
                     retry_after = status_response.json().get("parameters", {}).get("retry_after", 1)
                     print(f"⏳ Rate limited by Telegram API, waiting {retry_after} seconds...")
                     await asyncio.sleep(retry_after)
         except Exception as e:
-            print(f"❌ Error setting webhook via browser (attempt {attempt}/{max_retries}): {e}")
-            await page.close()
+            print(f"❌ Error setting webhook (attempt {attempt}/{max_retries}): {e}")
 
         if attempt < max_retries:
             print(f"⏳ Retrying in {retry_delay} seconds...")
@@ -151,75 +135,6 @@ async def set_telegram_webhook(public_url, browser_context, max_retries=5, retry
     print(f"❌ Failed to set Telegram webhook after {max_retries} attempts")
     current_tunnel_url = None
     return False
-
-async def start_tunnel(browser_context):
-    global current_tunnel_url
-    print(f"🚀 Starting Cloudflare tunnel with {CLOUDFLARED_PATH}")
-    error_count = 0
-    max_errors = 3
-    while True:
-        try:
-            process = subprocess.Popen(
-                [CLOUDFLARED_PATH, "tunnel", "--url", LOCAL_URL],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True
-            )
-            print("✅ Cloudflare tunnel process started")
-
-            # Stream output and capture public URL
-            url_pattern = re.compile(r"https://[a-zA-Z0-9\-]+\.trycloudflare\.com")
-            async for line in async_iter_lines(process):
-                print(f"📜 Tunnel output: {line.strip()}")
-                if "context canceled" in line.lower():
-                    error_count += 1
-                    print(f"⚠️ Detected tunnel error #{error_count}/{max_errors}: context canceled")
-                    if error_count >= max_errors:
-                        print("❌ Too many tunnel errors, restarting tunnel")
-                        process.terminate()
-                        error_count = 0
-                        break
-                match = url_pattern.search(line)
-                if match:
-                    public_url = match.group(0)
-                    print(f"🌐 Detected public URL: {public_url}")
-                    success = await set_telegram_webhook(public_url, browser_context)
-                    if not success:
-                        print("❌ Webhook setup failed, restarting tunnel")
-                        process.terminate()
-                        break
-            # Wait for process to complete or handle restart
-            return_code = await asyncio.get_event_loop().run_in_executor(None, process.wait)
-            print(f"❌ Tunnel stopped with code {return_code}, restarting in 5 seconds...")
-            current_tunnel_url = None
-            webhook_set.clear()
-            await asyncio.sleep(5)
-        except Exception as e:
-            print(f"❌ Tunnel error: {e}")
-            current_tunnel_url = None
-            webhook_set.clear()
-            await asyncio.sleep(5)
-
-async def async_iter_lines(process):
-    print("🔄 Starting async output iterator for tunnel")
-    loop = asyncio.get_event_loop()
-    queue = asyncio.Queue()
-
-    def enqueue_output():
-        try:
-            for line in iter(process.stdout.readline, ''):
-                loop.call_soon_threadsafe(queue.put_nowait, line)
-            loop.call_soon_threadsafe(queue.put_nowait, None)
-        except Exception as e:
-            loop.call_soon_threadsafe(queue.put_nowait, f"Error: {e}")
-
-    loop.run_in_executor(None, enqueue_output)
-    while True:
-        line = await queue.get()
-        if line is None or line.startswith("Error:"):
-            print(f"🔄 Tunnel output iterator closed: {line if line else 'EOF'}")
-            break
-        yield line
 
 app = FastAPI()
 
@@ -239,14 +154,13 @@ async def telegram_webhook(req: Request, background_tasks: BackgroundTasks):
     return {"ok": True}
 
 async def trigger_click(chat_id, norm_title, source):
-    async with click_in_progress:  # concurrency-safe
+    async with click_in_progress:
         try:
             click_page = page_global.get(f"{source}_click_page")
             await click_page.reload()
-            await asyncio.sleep(0.3)  # short wait for DOM
+            await asyncio.sleep(0.3)
 
             async def find_and_click(cards):
-                # Parallelize fetching titles
                 titles = await asyncio.gather(
                     *[card.locator("h2").inner_text() for card in cards]
                 )
@@ -261,14 +175,14 @@ async def trigger_click(chat_id, norm_title, source):
                         if await bl_grid.count() == 0:
                             print(f"⚠️ bl_grid parent not found for: {title_text}")
                             notify_telegram(chat_id, title_text, False)
-                            return True  # stop search
+                            return True
 
                         btn = bl_grid.locator("div.btnCBN.btnCBN1").first
                         if await btn.count() > 0:
                             description = await btn.get_attribute("title") or await btn.inner_text()
-                            await btn.click(force=True)  # ✅ use proper browser click
+                            await btn.click(force=True)
                             print(f"✅ Clicked Contact Buyer Now for: {title_text}, Description: {description}")
-                            await asyncio.sleep(3)  # shorter wait for popup
+                            await asyncio.sleep(3)
                             await click_page.reload()
                             notify_telegram(chat_id, title_text, True, description)
                             return True
@@ -276,19 +190,17 @@ async def trigger_click(chat_id, norm_title, source):
                             print(f"⚠️ Contact Buyer Now button not found in: {title_text}")
                             notify_telegram(chat_id, title_text, False)
                             return True
-                return False  # not found in current cards
+                return False
 
-            # 🔍 First try without scrolling
             cards = await click_page.locator("div.lstNw").all()
             print(f"🔍 Initial search [{source}] for: {norm_title} in {len(cards)} cards")
             if await find_and_click(cards):
                 return
 
-            # 🔍 Then scroll up to 5 times
             prev_height = 0
             for scroll_attempt in range(5):
                 await click_page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-                await asyncio.sleep(0.5)  # shorter delay
+                await asyncio.sleep(0.5)
                 new_height = await click_page.evaluate("document.body.scrollHeight")
                 if new_height == prev_height:
                     print(f"ℹ️ No more content to scroll after {scroll_attempt+1} attempts.")
@@ -296,11 +208,10 @@ async def trigger_click(chat_id, norm_title, source):
                 prev_height = new_height
 
                 cards = await click_page.locator("div.lstNw").all()
-                print(f"🔍 Scroll attempt {scroll_attempt+1}, searching {len(cards)} cards")
+                print(f"🔍 Scroll attempt {scroll_attempt+1}, searching {len(cards)}")
                 if await find_and_click(cards):
                     return
 
-            # ❌ Still not found
             print(f"❌ Not found: {norm_title} on [{source}]")
             notify_telegram(chat_id, norm_title, False)
 
@@ -351,6 +262,7 @@ async def set_cookies_from_file(context, cookie_path):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    ensure_data_directory()
     async with async_playwright() as p:
         browser = await p.chromium.launch(
             headless=True,
@@ -370,7 +282,6 @@ async def lifespan(app: FastAPI):
             viewport={"width": 1280, "height": 800}
         )
 
-        # Inject stealth JS
         await context.add_init_script("""
             Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
             window.chrome = { runtime: {} };
@@ -398,7 +309,7 @@ async def lifespan(app: FastAPI):
         await relevant_click_page.goto("https://seller.indiamart.com/bltxn/?pref=relevant", timeout=60000)
 
         print("🔄 Starting background tasks")
-        asyncio.create_task(start_tunnel(context))
+        asyncio.create_task(set_telegram_webhook())
         asyncio.create_task(scan_loop(recent_scan, "recent_scan"))
         asyncio.create_task(scan_loop(relevant_scan, "relevant_scan"))
         asyncio.create_task(refresh_loop())
